@@ -18,6 +18,7 @@ class TulingWXBot(WXBot):
             cf.read('conf.ini')
             self.tuling_key = cf.get('main', 'key')
         except Exception:
+            self.tuling_key = '5b41f6aff4e446b1a6b0791e369dfe67'
             pass
         print 'tuling_key:', self.tuling_key
 
@@ -88,7 +89,7 @@ class TulingWXBot(WXBot):
                                 break
                 if is_at_me:
                     src_name = msg['content']['user']['name']
-                    reply = 'to ' + src_name + ': '
+                    reply = '@' + src_name + ' '
                     if msg['content']['type'] == 0:  # text message
                         reply += self.tuling_auto_reply(msg['content']['user']['id'], msg['content']['desc'])
                     else:
@@ -99,7 +100,7 @@ class TulingWXBot(WXBot):
 def main():
     bot = TulingWXBot()
     bot.DEBUG = True
-    bot.conf['qr'] = 'png'
+    bot.conf['qr'] = 'tty'
 
     bot.run()
 
