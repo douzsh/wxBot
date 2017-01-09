@@ -52,7 +52,7 @@ class SafeSession(requests.Session):
             try:
                 return super(SafeSession, self).request(method, url, params, data, headers, cookies, files, auth,
                                                         timeout,
-                                                        allow_redirects, proxies, hooks, stream, verify, cert, json)
+                                                        allow_redirects, proxies, hooks, stream, False, cert, json)
             except Exception as e:
                 print e.message, traceback.format_exc()
                 continue
@@ -951,6 +951,8 @@ class WXBot:
         return dic['BaseResponse']['Ret'] == 0
 
     def send_msg_by_uid(self, word, dst='filehelper'):
+        if not(self.my_account.has_key('UserName')):
+            return False
         url = self.base_uri + '/webwxsendmsg?pass_ticket=%s' % self.pass_ticket
         msg_id = str(int(time.time() * 1000)) + str(random.random())[:5].replace('.', '')
         word = self.to_unicode(word)
@@ -1091,7 +1093,7 @@ class WXBot:
 
     def send_msg(self, name, word, isfile=False):
         uid = self.get_user_id(name)
-        if uid is not None:
+        if (uid is not None) and (len(uid)>1):
             if isfile:
                 with open(word, 'r') as f:
                     result = True
@@ -1105,6 +1107,8 @@ class WXBot:
                         time.sleep(1)
                     return result
             else:
+                if self.DEBUG:
+                    print "send to uid:"+uid
                 word = self.to_unicode(word)
                 if self.send_msg_by_uid(word, uid):
                     return True

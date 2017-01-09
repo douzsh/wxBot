@@ -4,7 +4,15 @@
 from wxbot import *
 import ConfigParser
 import json
+import thread
+import time
 
+def sendWeatherReport(bot, delay):
+   weather = ''
+   while True:
+      weather = bot.tuling_auto_reply(u'd', u"北京天气")
+      bot.send_msg_to_group(weather)
+      time.sleep(delay)
 
 class TulingWXBot(WXBot):
     def __init__(self):
@@ -18,9 +26,9 @@ class TulingWXBot(WXBot):
             cf.read('conf.ini')
             self.tuling_key = cf.get('main', 'key')
         except Exception:
-            self.tuling_key = '5b41f6aff4e446b1a6b0791e369dfe67'
             pass
-        print 'tuling_key:', self.tuling_key
+        if(self.DEBUG):
+            print 'tuling_key:', self.tuling_key
 
     def tuling_auto_reply(self, uid, msg):
         if self.tuling_key:
@@ -37,13 +45,13 @@ class TulingWXBot(WXBot):
                 result = respond['url']
             elif respond['code'] == 302000:
                 for k in respond['list']:
-                    result = result + u"【" + k['source'] + u"】 " +\
+                    result = result + u"【" + k['source'] + u"】 " + \
                         k['article'] + "\t" + k['detailurl'] + "\n"
             else:
                 result = respond['text'].replace('<br>', '  ')
                 result = result.replace(u'\xa0', u' ')
-
-            print '    ROBOT:', result
+            if(self.DEBUG):
+                print '    ROBOT:', result
             return result
         else:
             return u"知道啦"
@@ -95,13 +103,20 @@ class TulingWXBot(WXBot):
                     else:
                         reply += u"对不起，只认字，其他杂七杂八的我都不认识，,,Ծ‸Ծ,,"
                     self.send_msg_by_uid(reply, msg['user']['id'])
+                    
+    def send_msg_to_group(self, content):
+        if(len(content) < 2):
+            return
+        for group in self.group_list:
+            if(group['PYQuanPin'] == 'babablacksheep') or (group['PYQuanPin'].find('douzsh')>0):
+                self.send_msg_by_uid(content,group['UserName'])
 
 
 def main():
     bot = TulingWXBot()
     bot.DEBUG = True
     bot.conf['qr'] = 'tty'
-
+    thread.start_new(sendWeatherReport, (bot, 60*60*5))
     bot.run()
 
 
