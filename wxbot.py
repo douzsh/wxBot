@@ -17,6 +17,7 @@ import random
 from traceback import format_exc
 from requests.exceptions import ConnectionError, ReadTimeout
 import HTMLParser
+import tools
 
 UNKONWN = 'unkonwn'
 SUCCESS = '200'
@@ -324,6 +325,28 @@ class WXBot:
         self.group_members = group_members
         self.encry_chat_room_id_list = encry_chat_room_id
 
+    def get_all_group_member_name(self, gid):
+        """
+        获取群聊中所有成员的名称
+        :param gid:
+        :return:
+        """
+        if gid not in self.group_members:
+            return None
+        group = self.group_members[gid]
+        group_member_name = []
+        for member in group:
+            names = {}
+            if 'RemarkName' in member and member['RemarkName']:
+                names['remark_name'] = member['RemarkName']
+            if 'NickName' in member and member['NickName']:
+                names['nickname'] = member['NickName']
+            if 'DisplayName' in member and member['DisplayName']:
+                names['display_name'] = member['DisplayName']
+            final_name = self.get_group_member_prefer_name(names)
+            group_member_name.append(final_name)
+        return group_member_name
+
     def get_group_member_name(self, gid, uid):
         """
         获取群聊中指定成员的名称信息
@@ -375,11 +398,11 @@ class WXBot:
         if name is None:
             return None
         if 'remark_name' in name:
-            return name['remark_name']
+            return tools.emoji_dealer(name['remark_name'])
         if 'nickname' in name:
-            return name['nickname']
+            return tools.emoji_dealer(name['nickname'])
         if 'display_name' in name:
-            return name['display_name']
+            return tools.emoji_dealer(name['display_name'])
         return None
 
     @staticmethod
@@ -387,11 +410,11 @@ class WXBot:
         if name is None:
             return None
         if 'remark_name' in name:
-            return name['remark_name']
+            return tools.emoji_dealer(name['remark_name'])
         if 'display_name' in name:
-            return name['display_name']
+            return tools.emoji_dealer(name['display_name'])
         if 'nickname' in name:
-            return name['nickname']
+            return tools.emoji_dealer(name['nickname'])
         return None
 
     def get_user_type(self, wx_user_id):
@@ -638,6 +661,14 @@ class WXBot:
                 print '    %s[Redraw]' % msg_prefix
         elif mtype == 10000:  # unknown, maybe red packet, or group invite
             msg_content['type'] = 12
+            if u'红包' in msg['Content']:
+                print '有红包！'
+                msg_content['is_hongbao'] = 1
+            elif u'邀请' in msg['Content']:
+                print '被拉入某群!'
+                msg_content['is_entergroup'] = 1
+                self.get_contact()
+
             msg_content['data'] = msg['Content']
             if self.DEBUG:
                 print '    [Unknown]'
@@ -710,6 +741,8 @@ class WXBot:
             else:
                 msg_type_id = 99
                 user['name'] = 'unknown'
+                # 可能是添加好友，更新通讯录
+                self.get_contact()
             if not user['name']:
                 user['name'] = 'unknown'
             user['name'] = HTMLParser.HTMLParser().unescape(user['name'])
@@ -722,6 +755,8 @@ class WXBot:
                        'content': content,
                        'to_user_id': msg['ToUserName'],
                        'user': user}
+            if message['user']['id'] == 'unknown':
+                self.get_contact()
             self.handle_msg_all(message)
 
     def schedule(self):
