@@ -45,9 +45,9 @@ class JOYJWebCrawler(object):
     
     def GetLatestCoupon(self):
         self.__get_content__()
-        res = ''
+        res = []
         for key in self.newc:
-            res+=key+"    "+self.newc[key]+"\n"
+            res.append(key+"    "+self.newc[key])
         self.contents = dict(self.contents, **self.newc)
         self.newc={}
         return res

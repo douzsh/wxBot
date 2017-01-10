@@ -10,9 +10,9 @@ from joyj import JOYJWebCrawler
 from wxbot import WXBot
 
 coupon = JOYJWebCrawler()
+keywords=[u'UNIQLO',u"NIKE",u"运动",u"蓝牙",u"小米",u"迪卡侬"]
 
 def KerWordCheck(res):
-    keywords=[u'UNIQLO',u"NIKE",u"运动",u"蓝牙",u"小米",u"迪卡侬"]
     for i in keywords:
         if res.find(i)>0:
             return True
@@ -28,8 +28,10 @@ def sendWeatherReport(bot, delay):
 def sendJOYJInfo(bot, delay):
     while True:
         res = coupon.GetLatestCoupon()
-        if(len(res)>0) and KerWordCheck(res):
-            bot.send_msg_to_group(res)
+        for item in res:
+            if KerWordCheck(item):
+                bot.send_msg_to_group(item)
+                print res
         time.sleep(delay)
 
 class TulingWXBot(WXBot):
@@ -75,19 +77,27 @@ class TulingWXBot(WXBot):
             return u"知道啦"
 
     def auto_switch(self, msg):
-        msg_data = msg['content']['data']
+        msg_data = msg['content']['data']            
         stop_cmd = [u'退下', u'走开', u'关闭', u'关掉', u'休息', u'滚开']
-        start_cmd = [u'出来', u'启动', u'工作']
+        start_cmd = [u'出来', u'启动', u'工作', u'开始']
         if self.robot_switch:
             for i in stop_cmd:
                 if i == msg_data:
                     self.robot_switch = False
                     self.send_msg_by_uid(u'[Robot]' + u'机器人已关闭！', msg['to_user_id'])
+                    return
         else:
             for i in start_cmd:
                 if i == msg_data:
                     self.robot_switch = True
                     self.send_msg_by_uid(u'[Robot]' + u'机器人已开启！', msg['to_user_id'])
+                    return
+        # for add keyword
+        if(msg_data.split(' ')[0]==u'添加'):
+            for word in msg_data.split(' '):
+                if(word != u'添加'):
+                    keywords.append(word) 
+                    self.send_msg_by_uid(u'[Robot]' + u'添加关键词:'+word, msg['to_user_id'])
 
     def handle_msg_all(self, msg):
         if not self.robot_switch and msg['msg_type_id'] != 1:
@@ -135,7 +145,7 @@ def main():
     bot.DEBUG = True
     bot.conf['qr'] = 'tty'
     thread.start_new(sendJOYJInfo, (bot, 60))
-    thread.start_new(sendWeatherReport, (bot, 60*60*5))
+    thread.start_new(sendWeatherReport, (bot, 60*60*12))
     bot.run()
 
 

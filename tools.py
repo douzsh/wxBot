@@ -51,9 +51,3 @@ if __name__ == '__main__':
     print emoji_dealer(name)
 
 
-#print emoji_dealer("Ivory<span class=\"emoji emoji1f338\"></span>adsa")
-#a= emoji_dealer("dads<span class=\"emoji emoji1f338\"></span>dad<span class=\"emoji emoji200\"></span>5sds")
-
-#a = ('2005',)
-#print '@'+"member"+('\\u2005').decode('unicode-escape')
-
