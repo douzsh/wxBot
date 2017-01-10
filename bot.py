@@ -1,29 +1,29 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from wxbot import *
 import ConfigParser
-import json
-import thread
 import time
+import thread
+import requests
+import json
 from joyj import JOYJWebCrawler
+from wxbot import WXBot
 
 coupon = JOYJWebCrawler()
 
 def sendWeatherReport(bot, delay):
-   weather = ''
-   while True:
-      weather = bot.tuling_auto_reply(u'd', u"北京天气")
-      bot.send_msg_to_group(weather)
-      time.sleep(delay)
+    weather = ''
+    while True:
+        weather = bot.tuling_auto_reply(u'd', u"北京天气")
+        bot.send_msg_to_group(weather)
+        time.sleep(delay)
       
 def sendJOYJInfo(bot, delay):
-   weather = ''
-   while True:
-      res = coupon.GetLatestCoupon()
-      if(len(res)>0):
-          bot.send_msg_to_group(res)
-      time.sleep(delay)
+    while True:
+        res = coupon.GetLatestCoupon()
+        if(len(res)>0):
+            bot.send_msg_to_group(res)
+        time.sleep(delay)
 
 class TulingWXBot(WXBot):
     def __init__(self):
