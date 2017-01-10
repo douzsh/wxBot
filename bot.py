@@ -11,6 +11,13 @@ from wxbot import WXBot
 
 coupon = JOYJWebCrawler()
 
+def KerWordCheck(res):
+    keywords=[u'UNIQLO',u"NIKE",u"运动",u"蓝牙",u"小米",u"迪卡侬"]
+    for i in keywords:
+        if res.find(i)>0:
+            return True
+    return False
+
 def sendWeatherReport(bot, delay):
     weather = ''
     while True:
@@ -21,7 +28,7 @@ def sendWeatherReport(bot, delay):
 def sendJOYJInfo(bot, delay):
     while True:
         res = coupon.GetLatestCoupon()
-        if(len(res)>0):
+        if(len(res)>0) and KerWordCheck(res):
             bot.send_msg_to_group(res)
         time.sleep(delay)
 
