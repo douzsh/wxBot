@@ -6,12 +6,23 @@ import ConfigParser
 import json
 import thread
 import time
+from joyj import JOYJWebCrawler
+
+coupon = JOYJWebCrawler()
 
 def sendWeatherReport(bot, delay):
    weather = ''
    while True:
       weather = bot.tuling_auto_reply(u'd', u"北京天气")
       bot.send_msg_to_group(weather)
+      time.sleep(delay)
+      
+def sendJOYJInfo(bot, delay):
+   weather = ''
+   while True:
+      res = coupon.GetLatestCoupon()
+      if(len(res)>0):
+          bot.send_msg_to_group(res)
       time.sleep(delay)
 
 class TulingWXBot(WXBot):
@@ -116,6 +127,7 @@ def main():
     bot = TulingWXBot()
     bot.DEBUG = True
     bot.conf['qr'] = 'tty'
+    thread.start_new(sendJOYJInfo, (bot, 60))
     thread.start_new(sendWeatherReport, (bot, 60*60*5))
     bot.run()
 
