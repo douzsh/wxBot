@@ -475,6 +475,7 @@ class WXBot:
     def proc_at_info(msg):
         if not msg:
             return '', []
+        msg = msg.replace(' ',u'\u2005')
         segs = msg.split(u'\u2005')
         str_msg_all = ''
         str_msg = ''
@@ -482,7 +483,10 @@ class WXBot:
         if len(segs) > 1:
             for i in range(0, len(segs) - 1):
                 segs[i] += u'\u2005'
-                pm = re.search(u'@.*\u2005', segs[i]).group()
+                res = re.search(u'@.*\u2005', segs[i])
+                pm = None
+                if res is not None:
+                    pm = res.group()
                 if pm:
                     name = pm[1:-1]
                     string = segs[i].replace(pm, '')
