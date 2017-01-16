@@ -10,7 +10,7 @@ from joyj import JOYJWebCrawler
 from wxbot import WXBot
 
 coupon = JOYJWebCrawler()
-keywords=[u'UNIQLO',u"NIKE",u"运动",u"蓝牙",u"小米",u"迪卡侬"]
+keywords=[u'UNIQLO',u"NIKE",u"运动",u"蓝牙",u"小米",u"迪卡侬",u"户外"]
 
 def KerWordCheck(res):
     for i in keywords:
@@ -56,6 +56,8 @@ class TulingWXBot(WXBot):
             user_id = uid.replace('@', '')[:30]
             body = {'key': self.tuling_key, 'info': msg.encode('utf8'), 'userid': user_id}
             r = requests.post(url, data=body)
+            if(len(r.text)<1):
+                return u"图灵已死，有事烧纸"
             respond = json.loads(r.text)
             result = ''
             if respond['code'] == 100000:
