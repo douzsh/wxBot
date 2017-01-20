@@ -33,10 +33,11 @@ class JOYJWebCrawler(object):
                     continue
                 if i['class'][0]=='media-body':
                     content = i.a.text
-                    for j in i.find('h4','media-extra').contents:
-                        if j.name is None:
-                            if(len(j.strip())>2):
-                                price =  j.strip()
+                    if( i.find('h4','media-extra') is not None):
+                        for j in i.find('h4','media-extra').contents:
+                            if j.name is None:
+                                if(len(j.strip())>2):
+                                    price =  j.strip()
                 if i['class'][0]=='media-link':
                     url = self.startPage + i.a['href']
             if not(self.contents.has_key(url)) and not(self.newc.has_key(url)):
@@ -55,7 +56,7 @@ class JOYJWebCrawler(object):
 if __name__ == '__main__':
     joy = JOYJWebCrawler()
     print joy.GetLatestCoupon()
-    #time.sleep(60)
-    #print joy.GetLatestCoupon()
+    time.sleep(60)
+    print joy.GetLatestCoupon()
     
         

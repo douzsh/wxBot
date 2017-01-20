@@ -29,9 +29,9 @@ def sendJOYJInfo(bot, delay):
     while True:
         res = coupon.GetLatestCoupon()
         for item in res:
+            print item
             if KerWordCheck(item):
                 bot.send_msg_to_group(item)
-                print res
         time.sleep(delay)
 
 class TulingWXBot(WXBot):
@@ -138,9 +138,10 @@ class TulingWXBot(WXBot):
         if(len(content) < 2):
             return
         for group in self.group_list:
-            if(group['PYQuanPin'] == 'babablacksheep') or (group['PYQuanPin'].find('douzsh')>0):
+            if(group['PYQuanPin'] == 'babablacksheep'):                
                 self.send_msg_by_uid(content,group['UserName'])
-
+            if(group['PYQuanPin'].find('douzsh')>=0):
+                self.send_msg_by_uid(content,group['UserName'])
 
 def main():
     bot = TulingWXBot()
